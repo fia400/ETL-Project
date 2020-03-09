@@ -1,0 +1,41 @@
+Select
+	m.inci_id,
+	m.alm_dttm,
+	YEAR(m.alm_dttm) as Year,
+	m.alm_time,
+	-- The following creates a standard address string. FH_db contains blank spaces, using RTRIM to eliminate the blanks
+	CONCAT(RTRIM(m.number), ' ', (RTRIM(m.st_prefix)), ' ', RTRIM(m.street), ' ', RTRIM(m.st_type)) as Address,
+	m.city,
+	m.state,
+	m.zip,
+	m.county,
+	m.zone,
+	m.district,
+	m.inci_no,
+	CONCAT(m.inci_type, '- ',Lkp_inci_b.Descript) as Inci_Type,
+	Lkp_inci_c.descript as Aid_Given_Received,
+	m.latitude,
+	m.longitude,
+	m.zip,
+	m.shift,
+	m.station,
+	u.resp_code,
+	Lkp_inci.Descript as Resp_desc
+
+FROM dbo.inc_main as m
+LEFT Join dbo.inc_unit as u
+ON m.inci_no = u.inci_no 
+
+LEFT JOIN dbo.lkp_inci
+ON u.Resp_code = dbo.Lkp_inci.Code 
+AND dbo.Lkp_inci.Category = 'RESP TYPE'
+
+LEFT JOIN dbo.Lkp_inci as Lkp_inci_b
+ON m.Inci_type = Lkp_inci_b.Code
+AND Lkp_inci_b.Category = 'INCI TYPE'
+
+LEFT JOIN dbo.Lkp_inci as Lkp_inci_c
+ON m.mutl_aid = Lkp_inci_c.Code
+AND Lkp_inci_c.Category = 'MUTL AID'
+
+Where YEAR(m.alm_dttm)>2014
